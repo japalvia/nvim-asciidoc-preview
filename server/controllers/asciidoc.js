@@ -53,9 +53,10 @@ function convertWithAsciidoctorCmd(file, cacheDir) {
   //        - webfonts ... use webfonts
   //        - toc=auto ... theme of content
   //        - data-uri ... embed images as base64
+  //        - kroki-fetch-diagram! ... disable kroki (use local tools)
   // -e ... for embedded documents
   // -o ... output target (`-` stdout)
-  const attributes = "-a toc=auto -a data-uri";
+  const attributes = "-a toc=auto -a data-uri -a kroki-fetch-diagram!";
   const resources = "-r asciidoctor-diagram";
   let cmd = "asciidoctor";
   cmd = `${cmd} ${resources} ${attributes} -o - "${file}"`;
