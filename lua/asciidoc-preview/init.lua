@@ -125,12 +125,14 @@ end
 function M.send_file_to_server()
   local filepath = vim.fn.expand('%:p') -- The file in the editor with full path.
   local preview_position = -1 -- The current scroll position.
+  local preview_line = 0 -- The source line to scroll to (0: not used).
   if config.options.preview.position == config.POSITIONS.START then
     preview_position = 0 -- The start of the preview website.
   elseif config.options.preview.position == config.POSITIONS.SYNC then
     preview_position = util.get_current_line_position_in_percent() -- The same (similar) position as in Neovim.
+    preview_line = vim.api.nvim_win_get_cursor(0)[1] -- Needs the sourcemap of the `cmd` converter.
   end
-  server.send_file(filepath, preview_position)
+  server.send_file(filepath, preview_position, preview_line)
 end
 
 ---Sends a notification to the server to refresh the preview page.

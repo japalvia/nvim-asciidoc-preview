@@ -50,6 +50,7 @@ exports.getPreview = (req, res) => {
     file: {
       path: data.preview.filepath,
       position: data.preview.position,
+      line: data.preview.line,
     },
   });
 };
@@ -59,6 +60,7 @@ exports.setPreview = (req, res) => {
   // get received data
   const newFilepath = req.body.preview.filepath;
   const newPosition = req.body.preview.position;
+  const newLine = parseInt(req.body.preview.line) || 0;
   console.log("DEBUG: " + newFilepath + " - " + newPosition);
 
   // handle received file
@@ -72,14 +74,18 @@ exports.setPreview = (req, res) => {
       res.status(201); // Created (201)
     }
 
-    // set only if it is a new file or position
-    if (
-      newFilepath != data.preview.filepath ||
-      newPosition != data.preview.position
-    ) {
-      data.preview.filepath = newFilepath;
-      data.preview.position = newPosition;
+    // set only if it is a new file, position or line
+    const fileChanged = newFilepath != data.preview.filepath;
+    const positionChanged = newPosition != data.preview.position;
+    const lineChanged = newLine != data.preview.line;
+    data.preview.filepath = newFilepath;
+    data.preview.position = newPosition;
+    data.preview.line = newLine;
+    if (fileChanged || (positionChanged && !newLine)) {
       exports.notifyClientsToUpdate();
+    } else if (lineChanged) {
+      // same page, only scroll (no reload)
+      exports.notifyClientsToScroll();
     }
 
     //res.send('Valid file')
@@ -142,11 +148,19 @@ exports.stop = (req, res) => {
   helper.waitToClose(data.server);
 };
 
-// send update notify to all clients
+// send update notify to all clients (`<position>` or `<position>;<line>`)
 exports.notifyClientsToUpdate = () => {
   console.log("Server: Notify all clients to update");
+  const line = data.preview.line ? `;${data.preview.line}` : "";
   data.clients.forEach((client) =>
-    client.response.write(`data: ${data.preview.position}\n\n`),
+    client.response.write(`data: ${data.preview.position}${line}\n\n`),
+  );
+};
+
+// send scroll notify to all clients (`line:<line>`), no reload
+exports.notifyClientsToScroll = () => {
+  data.clients.forEach((client) =>
+    client.response.write(`data: line:${data.preview.line}\n\n`),
   );
 };
 

@@ -36,6 +36,9 @@ const preview = {
   // `500px` - Position in pixel // TODO: Needed?
   position: 0,
 
+  // The source line to scroll to (`0` - not set, use position)
+  line: 0,
+
   // Determines whether the preview is finished
   isFinished: false,
 };

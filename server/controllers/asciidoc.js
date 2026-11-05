@@ -1,5 +1,8 @@
 // controller/asciidoc.js
 
+// modules
+const path = require("path");
+
 // set reload script
 const reloadScript = '<script src="script.js"></script>';
 
@@ -57,7 +60,9 @@ function convertWithAsciidoctorCmd(file, cacheDir) {
   // -e ... for embedded documents
   // -o ... output target (`-` stdout)
   const attributes = "-a toc=auto -a data-uri -a kroki-fetch-diagram!";
-  const resources = "-r asciidoctor-diagram";
+  // - sourcemap.rb ... adds the source line of each block as a role (scroll sync)
+  const sourcemap = path.join(__dirname, "../scripts/sourcemap.rb");
+  const resources = `-r asciidoctor-diagram -r "${sourcemap}"`;
   let cmd = "asciidoctor";
   cmd = `${cmd} ${resources} ${attributes} -o - "${file}"`;
 

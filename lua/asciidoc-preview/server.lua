@@ -80,9 +80,17 @@ end
 ---Sends the filepath and position to the server.
 ---@param filepath string The filename with the full path.
 ---@param position? integer The scroll position for the preview.
-function M.send_file(filepath, position)
+---@param line? integer The source line to scroll the preview to.
+function M.send_file(filepath, position, line)
   position = position or -1
-  local json = '\'{ "preview": { "filepath": "' .. filepath .. '", "position": ' .. position .. " } }'"
+  line = line or 0
+  local json = '\'{ "preview": { "filepath": "'
+    .. filepath
+    .. '", "position": '
+    .. position
+    .. ', "line": '
+    .. line
+    .. " } }'"
   local cmd = commands.put_file .. ' -H "Content-Type: application/json"' .. ' -d ' .. json
   exec_command(cmd)
 end
